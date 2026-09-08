@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { Mail, Briefcase, Building2, Calendar, Save } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { userApi } from '@/api/userApi';
-import { PageHeader } from '@/components/common/PageHeader';
-import { Button } from '@/components/common/Button';
-import { Input } from '@/components/common/Input';
-import { Badge } from '@/components/common/Badge';
-import { USER_ROLE_LABELS, UserRole } from '@/constants/roles';
-import { formatDate } from '@/utils/date';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Mail, Briefcase, Building2, Calendar, Save } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { userApi } from "@/api/userApi";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/Input";
+import { Badge } from "@/components/common/Badge";
+import { USER_ROLES, USER_ROLE_LABELS, UserRole } from "@/constants/roles";
+import { formatDate } from "@/utils/date";
+import { extractErrorMessage } from "@/utils/error";
+import { ShieldAlert } from "lucide-react";
 
 const profileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(50),
+  name: z.string().min(2, "Name must be at least 2 characters").max(50),
   department: z.string().max(50).optional(),
   jobTitle: z.string().max(50).optional(),
 });
@@ -23,6 +25,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export const ProfilePage: React.FC = () => {
   const { user, refetchUser } = useAuth();
+  const isAdmin = user?.role === USER_ROLES.ADMIN;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -32,18 +35,25 @@ export const ProfilePage: React.FC = () => {
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name || '',
-      department: user?.department || '',
-      jobTitle: user?.jobTitle || '',
+      name: user?.name || "",
+      department: user?.department || "",
+      jobTitle: user?.jobTitle || "",
     },
   });
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
+    if (!isAdmin) {
+      toast.error(
+        "Only administrators have permission to update user profiles.",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const userId = user.id || (user as { _id?: string })._id;
-      if (!userId) throw new Error('User ID not found');
+      if (!userId) throw new Error("User ID not found");
 
       await userApi.updateUser(userId, {
         name: values.name,
@@ -52,10 +62,9 @@ export const ProfilePage: React.FC = () => {
       });
 
       await refetchUser();
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to update profile';
-      toast.error(msg);
+      toast.error(extractErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +72,7 @@ export const ProfilePage: React.FC = () => {
 
   const roleLabel = user?.role
     ? USER_ROLE_LABELS[user.role as UserRole] || user.role
-    : 'Member';
+    : "Member";
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -78,21 +87,23 @@ export const ProfilePage: React.FC = () => {
           <div className="w-20 h-20 rounded-full bg-[#62242F] text-white flex items-center justify-center text-2xl font-bold shadow-md ring-4 ring-[#F7EBEF]">
             {user?.name
               ? user.name
-                  .split(' ')
+                  .split(" ")
                   .map((p) => p[0])
-                  .join('')
+                  .join("")
                   .toUpperCase()
                   .slice(0, 2)
-              : 'U'}
+              : "U"}
           </div>
 
-          <h3 className="text-base font-bold text-slate-900 mt-4">{user?.name}</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-4">
+            {user?.name}
+          </h3>
           <p className="text-xs text-slate-500">{user?.email}</p>
 
           <div className="mt-3 flex gap-2">
             <Badge variant="primary">{roleLabel}</Badge>
-            <Badge variant={user?.isActive ? 'success' : 'danger'}>
-              {user?.isActive ? 'Active' : 'Inactive'}
+            <Badge variant={user?.isActive ? "success" : "danger"}>
+              {user?.isActive ? "Active" : "Inactive"}
             </Badge>
           </div>
 
@@ -101,31 +112,45 @@ export const ProfilePage: React.FC = () => {
           <div className="w-full space-y-3 text-left text-xs">
             <div className="flex items-center gap-2.5 text-slate-600">
               <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
-              <span>{user?.department || 'No department specified'}</span>
+              <span>{user?.department || "No department specified"}</span>
             </div>
             <div className="flex items-center gap-2.5 text-slate-600">
               <Briefcase className="w-4 h-4 text-slate-400 shrink-0" />
-              <span>{user?.jobTitle || 'No job title specified'}</span>
+              <span>{user?.jobTitle || "No job title specified"}</span>
             </div>
             <div className="flex items-center gap-2.5 text-slate-600">
               <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-              <span>Joined {user?.createdAt ? formatDate(user.createdAt) : 'Recently'}</span>
+              <span>
+                Joined{" "}
+                {user?.createdAt ? formatDate(user.createdAt) : "Recently"}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Right Column: Edit Profile Form */}
         <div className="md:col-span-2 bg-white p-6 rounded-xl border border-slate-200/90 shadow-xs">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 mb-5">
+          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 mb-4">
             Personal Information
           </h3>
+
+          {!isAdmin && (
+            <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs flex items-center gap-2 mb-4">
+              <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600" />
+              <span>
+                Your profile information is managed by your System
+                Administrator. Only administrators can edit user accounts.
+              </span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Input
                 label="Full Name"
                 error={errors.name?.message}
-                {...register('name')}
+                disabled={!isAdmin}
+                {...register("name")}
                 placeholder="Your full name"
               />
             </div>
@@ -138,13 +163,14 @@ export const ProfilePage: React.FC = () => {
                 <input
                   type="email"
                   disabled
-                  value={user?.email || ''}
+                  value={user?.email || ""}
                   className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-500 cursor-not-allowed"
                 />
                 <Mail className="w-4 h-4 text-slate-400 absolute right-3 top-2.5" />
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
-                Email address is managed by your administrator and cannot be changed here.
+                Email address is managed by your administrator and cannot be
+                changed.
               </p>
             </div>
 
@@ -153,7 +179,8 @@ export const ProfilePage: React.FC = () => {
                 <Input
                   label="Department"
                   error={errors.department?.message}
-                  {...register('department')}
+                  disabled={!isAdmin}
+                  {...register("department")}
                   placeholder="e.g. Engineering"
                 />
               </div>
@@ -161,23 +188,26 @@ export const ProfilePage: React.FC = () => {
                 <Input
                   label="Job Title"
                   error={errors.jobTitle?.message}
-                  {...register('jobTitle')}
+                  disabled={!isAdmin}
+                  {...register("jobTitle")}
                   placeholder="e.g. Frontend Specialist"
                 />
               </div>
             </div>
 
-            <div className="pt-4 flex justify-end">
-              <Button
-                type="submit"
-                variant="primary"
-                isLoading={isSubmitting}
-                disabled={!isDirty || isSubmitting}
-                leftIcon={<Save className="w-4 h-4" />}
-              >
-                Save Changes
-              </Button>
-            </div>
+            {isAdmin && (
+              <div className="pt-4 flex justify-end">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  isLoading={isSubmitting}
+                  disabled={!isDirty || isSubmitting}
+                  leftIcon={<Save className="w-4 h-4" />}
+                >
+                  Save Changes
+                </Button>
+              </div>
+            )}
           </form>
         </div>
       </div>
