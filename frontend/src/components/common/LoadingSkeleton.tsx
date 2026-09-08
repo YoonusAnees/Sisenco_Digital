@@ -5,6 +5,8 @@ export const Skeleton: React.FC<{ className?: string }> = ({ className }) => (
   <div className={cn('animate-pulse bg-slate-200/80 rounded-md', className)} />
 );
 
+export const LoadingSkeleton = Skeleton;
+
 export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
   rows = 5,
   columns = 4,

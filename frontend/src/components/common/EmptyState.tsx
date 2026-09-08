@@ -8,6 +8,7 @@ export interface EmptyStateProps {
   icon?: React.ReactNode;
   actionLabel?: string;
   onAction?: () => void;
+  action?: React.ReactNode;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -16,6 +17,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   actionLabel,
   onAction,
+  action,
 }) => {
   return (
     <div className="flex flex-col items-center justify-center p-8 sm:p-12 bg-white rounded-xl border border-dashed border-slate-300 text-center space-y-3">
@@ -26,11 +28,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <h4 className="text-sm font-semibold text-slate-800">{title}</h4>
         <p className="text-xs text-slate-500">{description}</p>
       </div>
-      {actionLabel && onAction && (
+      {action ? (
+        <div className="mt-2">{action}</div>
+      ) : actionLabel && onAction ? (
         <Button variant="outline" size="sm" onClick={onAction} className="mt-2">
           {actionLabel}
         </Button>
-      )}
+      ) : null}
     </div>
   );
 };

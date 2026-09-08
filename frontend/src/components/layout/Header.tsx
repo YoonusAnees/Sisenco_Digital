@@ -5,6 +5,8 @@ import { Button } from '@/components/common/Button';
 import { Menu, LogOut, Bell, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { useNotifications } from '@/contexts/NotificationContext';
+
 interface HeaderProps {
   onMobileMenuToggle: () => void;
   unreadNotificationCount?: number;
@@ -12,9 +14,11 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onMobileMenuToggle,
-  unreadNotificationCount = 0,
+  unreadNotificationCount: propUnreadCount,
 }) => {
   const { user, logout } = useAuth();
+  const { unreadCount: contextUnreadCount } = useNotifications();
+  const unreadNotificationCount = propUnreadCount !== undefined ? propUnreadCount : contextUnreadCount;
   const navigate = useNavigate();
 
   const getInitials = (name?: string) => {
@@ -73,7 +77,11 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="h-6 w-px bg-slate-200" />
 
         {/* User Info & Avatar */}
-        <div className="flex items-center gap-3">
+        <div
+          onClick={() => navigate('/settings')}
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          title="View profile settings"
+        >
           <div className="w-8 h-8 rounded-full bg-[#62242F] text-white flex items-center justify-center text-xs font-bold shadow-xs">
             {getInitials(user?.name)}
           </div>

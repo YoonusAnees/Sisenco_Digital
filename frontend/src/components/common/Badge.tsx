@@ -3,7 +3,19 @@ import { cn } from '@/utils/cn';
 import { REPORT_STATUSES, ReportStatus } from '@/constants/reports';
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: 'default' | 'draft' | 'submitted' | 'needs_correction' | 'approved' | 'active' | 'inactive' | 'info' | 'warning';
+  variant?:
+    | 'default'
+    | 'draft'
+    | 'submitted'
+    | 'needs_correction'
+    | 'approved'
+    | 'active'
+    | 'inactive'
+    | 'info'
+    | 'warning'
+    | 'primary'
+    | 'success'
+    | 'danger';
   size?: 'sm' | 'md';
 }
 
@@ -24,6 +36,9 @@ export const Badge: React.FC<BadgeProps> = ({
     inactive: 'bg-red-50 text-red-700 border-red-200',
     info: 'bg-sky-50 text-sky-700 border-sky-200',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
+    primary: 'bg-[#F7EBEF] text-[#62242F] border-[#62242F]/20',
+    success: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+    danger: 'bg-red-50 text-red-700 border-red-200',
   };
 
   const sizes = {
