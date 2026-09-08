@@ -1,5 +1,6 @@
 import { ReviewAction } from '@/constants/reviews';
 import { User } from './user';
+import { WeeklyReport } from './report';
 
 export interface ReportReviewHistory {
   _id: string;
@@ -21,3 +22,6 @@ export interface ReviewHistoryResponseData {
     totalPages: number;
   };
 }
+
+/** The review queue returns WeeklyReport documents enriched with owner info */
+export type Review = WeeklyReport;
