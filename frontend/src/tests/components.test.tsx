@@ -7,17 +7,17 @@ import { REPORT_STATUSES } from '@/constants/reports';
 describe('Common Components', () => {
   it('renders Badge with default and custom variants', () => {
     render(<Badge variant="active">Active Status</Badge>);
-    expect(screen.getByText('Active Status')).toBeInTheDocument();
+    expect(screen.getByText('Active Status')).toBeDefined();
   });
 
   it('renders ReportStatusBadge accurately', () => {
     render(<ReportStatusBadge status={REPORT_STATUSES.APPROVED} />);
-    expect(screen.getByText('Approved')).toBeInTheDocument();
+    expect(screen.getByText('Approved')).toBeDefined();
   });
 
   it('renders Button with variants and handles loading state', () => {
     render(<Button isLoading>Click Me</Button>);
     const button = screen.getByRole('button');
-    expect(button).toBeDisabled();
+    expect(button.hasAttribute('disabled')).toBe(true);
   });
 });
