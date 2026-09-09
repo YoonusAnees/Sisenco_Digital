@@ -10,10 +10,9 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/common/Button";
 import { Input } from "@/components/common/Input";
 import { Badge } from "@/components/common/Badge";
-import { USER_ROLES, USER_ROLE_LABELS, UserRole } from "@/constants/roles";
+import { USER_ROLE_LABELS, UserRole } from "@/constants/roles";
 import { formatDate } from "@/utils/date";
 import { extractErrorMessage } from "@/utils/error";
-import { ShieldAlert } from "lucide-react";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),
@@ -25,7 +24,6 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export const ProfilePage: React.FC = () => {
   const { user, refetchUser } = useAuth();
-  const isAdmin = user?.role === USER_ROLES.ADMIN;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -43,13 +41,6 @@ export const ProfilePage: React.FC = () => {
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
-    if (!isAdmin) {
-      toast.error(
-        "Only administrators have permission to update user profiles.",
-      );
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const userId = user.id || (user as { _id?: string })._id;
@@ -134,22 +125,13 @@ export const ProfilePage: React.FC = () => {
             Personal Information
           </h3>
 
-          {!isAdmin && (
-            <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs flex items-center gap-2 mb-4">
-              <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600" />
-              <span>
-                Your profile information is managed by your System
-                Administrator. Only administrators can edit user accounts.
-              </span>
-            </div>
-          )}
+
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Input
                 label="Full Name"
                 error={errors.name?.message}
-                disabled={!isAdmin}
                 {...register("name")}
                 placeholder="Your full name"
               />
@@ -179,7 +161,6 @@ export const ProfilePage: React.FC = () => {
                 <Input
                   label="Department"
                   error={errors.department?.message}
-                  disabled={!isAdmin}
                   {...register("department")}
                   placeholder="e.g. Engineering"
                 />
@@ -188,26 +169,23 @@ export const ProfilePage: React.FC = () => {
                 <Input
                   label="Job Title"
                   error={errors.jobTitle?.message}
-                  disabled={!isAdmin}
                   {...register("jobTitle")}
                   placeholder="e.g. Frontend Specialist"
                 />
               </div>
             </div>
 
-            {isAdmin && (
-              <div className="pt-4 flex justify-end">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  isLoading={isSubmitting}
-                  disabled={!isDirty || isSubmitting}
-                  leftIcon={<Save className="w-4 h-4" />}
-                >
-                  Save Changes
-                </Button>
-              </div>
-            )}
+            <div className="pt-4 flex justify-end">
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isSubmitting}
+                disabled={!isDirty || isSubmitting}
+                leftIcon={<Save className="w-4 h-4" />}
+              >
+                Save Changes
+              </Button>
+            </div>
           </form>
         </div>
       </div>

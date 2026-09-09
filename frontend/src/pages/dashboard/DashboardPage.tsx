@@ -397,14 +397,51 @@ export const DashboardPage: React.FC = () => {
       {/* Team Member Statuses Table for Managers/Admins */}
       {isManagerOrAdmin && memberStatuses.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
-          <div className="p-5 border-b border-slate-200 flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-slate-900">Team Member Submission Status</h3>
               <p className="text-xs text-slate-500">Summary of weekly report submissions across the team</p>
             </div>
-            <Users className="w-4 h-4 text-slate-400" />
+            <Users className="w-4 h-4 text-slate-400 shrink-0" />
           </div>
-          <div className="overflow-x-auto">
+
+          {/* Mobile stacked cards */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {memberStatuses.map((m) => (
+              <div key={m.userId} className="px-4 py-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{m.name}</p>
+                    <p className="text-[11px] text-slate-400">{m.email}</p>
+                  </div>
+                  <span className="capitalize px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700">
+                    {m.role}
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1 text-center">
+                  <div className="bg-slate-50 rounded-lg p-1.5">
+                    <p className="text-[10px] text-slate-400 font-medium">Drafts</p>
+                    <p className="text-sm font-bold text-slate-600">{m.draftCount}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-1.5">
+                    <p className="text-[10px] text-blue-400 font-medium">Submitted</p>
+                    <p className="text-sm font-bold text-blue-600">{m.submittedCount}</p>
+                  </div>
+                  <div className="bg-amber-50 rounded-lg p-1.5">
+                    <p className="text-[10px] text-amber-400 font-medium">Revision</p>
+                    <p className="text-sm font-bold text-amber-600">{m.needsCorrectionCount}</p>
+                  </div>
+                  <div className="bg-emerald-50 rounded-lg p-1.5">
+                    <p className="text-[10px] text-emerald-400 font-medium">Approved</p>
+                    <p className="text-sm font-bold text-emerald-600">{m.approvedCount}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
                 <tr>
@@ -428,18 +465,10 @@ export const DashboardPage: React.FC = () => {
                         {m.role}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-center font-medium text-slate-600">
-                      {m.draftCount}
-                    </td>
-                    <td className="px-5 py-3.5 text-center font-semibold text-blue-600">
-                      {m.submittedCount}
-                    </td>
-                    <td className="px-5 py-3.5 text-center font-semibold text-amber-600">
-                      {m.needsCorrectionCount}
-                    </td>
-                    <td className="px-5 py-3.5 text-center font-semibold text-emerald-600">
-                      {m.approvedCount}
-                    </td>
+                    <td className="px-5 py-3.5 text-center font-medium text-slate-600">{m.draftCount}</td>
+                    <td className="px-5 py-3.5 text-center font-semibold text-blue-600">{m.submittedCount}</td>
+                    <td className="px-5 py-3.5 text-center font-semibold text-amber-600">{m.needsCorrectionCount}</td>
+                    <td className="px-5 py-3.5 text-center font-semibold text-emerald-600">{m.approvedCount}</td>
                   </tr>
                 ))}
               </tbody>

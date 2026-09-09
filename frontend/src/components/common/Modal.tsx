@@ -46,7 +46,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
@@ -57,7 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal Container */}
       <div
         className={cn(
-          'relative w-full bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden z-10 transition-all animate-in zoom-in-95 duration-200',
+          'relative w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 transition-all animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]',
           maxWidthClasses[maxWidth]
         )}
         role="dialog"
@@ -66,20 +66,20 @@ export const Modal: React.FC<ModalProps> = ({
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+          <div className="flex items-start justify-between px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-b border-slate-100 shrink-0">
             <div>
               {title && (
-                <h3 id="modal-title" className="text-lg font-semibold text-slate-900">
+                <h3 id="modal-title" className="text-base sm:text-lg font-semibold text-slate-900">
                   {title}
                 </h3>
               )}
               {description && (
-                <p className="text-xs text-slate-500 mt-1">{description}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{description}</p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-[#62242F]"
+              className="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-[#62242F]"
               aria-label="Close dialog"
             >
               <X className="w-5 h-5" />
@@ -88,7 +88,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Content */}
-        <div className="px-6 py-5 max-h-[75vh] overflow-y-auto">{children}</div>
+        <div className="px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
   );

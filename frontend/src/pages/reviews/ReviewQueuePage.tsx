@@ -120,8 +120,58 @@ export const ReviewQueuePage: React.FC = () => {
             />
           ) : (
             <div className="space-y-4">
-              {/* Table-style list */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              {/* ── Mobile Cards (hidden md+) ── */}
+              <div className="md:hidden space-y-3">
+                {data.reports.map((report) => {
+                  const owner = report.ownerId as User;
+                  const ownerName = typeof owner === 'object' ? owner.name : 'Unknown';
+                  const reportId = report._id || report.id;
+                  return (
+                    <div key={reportId} className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-3">
+                      {/* Header row */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-[#62242F] text-white text-sm font-bold flex items-center justify-center shrink-0">
+                            {ownerName.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-900 text-sm truncate">{ownerName}</p>
+                            <p className="text-xs text-slate-500">
+                              Week {report.weekNumber}, {report.year}
+                            </p>
+                          </div>
+                        </div>
+                        <ReportStatusBadge status={report.status} />
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                        <span><span className="text-slate-400">Period: </span>{formatDate(report.weekStart)} – {formatDate(report.weekEnd)}</span>
+                        <span><span className="text-slate-400">Hours: </span><span className="font-semibold">{report.totalHours}h</span></span>
+                        {report.submittedAt && (
+                          <span><span className="text-slate-400">Submitted: </span>{formatDate(report.submittedAt)}</span>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                        <Button variant="ghost" size="sm" className="flex-1 text-xs" leftIcon={<Eye className="w-3.5 h-3.5" />} onClick={() => setViewingReport(report)}>
+                          View
+                        </Button>
+                        <Button variant="success" size="sm" className="flex-1 text-xs" leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />} onClick={() => openAction(report, 'approve')}>
+                          Approve
+                        </Button>
+                        <Button variant="warning" size="sm" className="flex-1 text-xs" leftIcon={<XCircle className="w-3.5 h-3.5" />} onClick={() => openAction(report, 'request_changes')}>
+                          Changes
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* ── Desktop Table (hidden below md) ── */}
+              <div className="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200">
@@ -166,28 +216,13 @@ export const ReviewQueuePage: React.FC = () => {
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2 justify-end">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                leftIcon={<Eye className="w-3.5 h-3.5" />}
-                                onClick={() => setViewingReport(report)}
-                              >
+                              <Button variant="ghost" size="sm" leftIcon={<Eye className="w-3.5 h-3.5" />} onClick={() => setViewingReport(report)}>
                                 View
                               </Button>
-                              <Button
-                                variant="success"
-                                size="sm"
-                                leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
-                                onClick={() => openAction(report, 'approve')}
-                              >
+                              <Button variant="success" size="sm" leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />} onClick={() => openAction(report, 'approve')}>
                                 Approve
                               </Button>
-                              <Button
-                                variant="warning"
-                                size="sm"
-                                leftIcon={<XCircle className="w-3.5 h-3.5" />}
-                                onClick={() => openAction(report, 'request_changes')}
-                              >
+                              <Button variant="warning" size="sm" leftIcon={<XCircle className="w-3.5 h-3.5" />} onClick={() => openAction(report, 'request_changes')}>
                                 Changes
                               </Button>
                             </div>

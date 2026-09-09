@@ -19,17 +19,22 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
   onPageChange,
   onLimitChange,
 }) => {
-  if (total === 0) return null;
+  const safeTotal = typeof total === 'number' && !isNaN(total) ? total : 0;
+  if (safeTotal === 0) return null;
 
-  const startItem = (page - 1) * limit + 1;
-  const endItem = Math.min(page * limit, total);
+  const safePage = Math.max(1, typeof page === 'number' && !isNaN(page) ? page : 1);
+  const safeLimit = Math.max(1, typeof limit === 'number' && !isNaN(limit) ? limit : 10);
+  const safeTotalPages = Math.max(1, typeof totalPages === 'number' && !isNaN(totalPages) ? totalPages : 1);
+
+  const startItem = (safePage - 1) * safeLimit + 1;
+  const endItem = Math.min(safePage * safeLimit, safeTotal);
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 px-1">
       <div className="text-xs text-slate-500">
         Showing <span className="font-medium text-slate-800">{startItem}</span> to{' '}
         <span className="font-medium text-slate-800">{endItem}</span> of{' '}
-        <span className="font-medium text-slate-800">{total}</span> results
+        <span className="font-medium text-slate-800">{safeTotal}</span> results
       </div>
 
       <div className="flex items-center gap-3">
@@ -59,13 +64,13 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <span className="px-3 text-xs font-medium text-slate-700">
-            Page {page} of {Math.max(1, totalPages)}
+            Page {page} of {safeTotalPages}
           </span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onPageChange(page + 1)}
-            disabled={page >= totalPages}
+            disabled={page >= safeTotalPages}
             aria-label="Next page"
           >
             <ChevronRight className="w-4 h-4" />

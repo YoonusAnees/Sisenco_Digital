@@ -1,20 +1,22 @@
-import React from 'react';
+﻿import React from 'react';
 import { WeeklyReport } from '@/types/report';
 import { ReportStatusBadge } from './ReportStatusBadge';
 import { Button } from '@/components/common/Button';
 import { REPORT_STATUSES } from '@/constants/reports';
 import { formatDate } from '@/utils/date';
-import { FileText, Send, Eye, AlertTriangle } from 'lucide-react';
+import { FileText, Send, Eye, AlertTriangle, Pencil } from 'lucide-react';
 
 interface ReportListCardProps {
   report: WeeklyReport;
   onView: (report: WeeklyReport) => void;
+  onEdit?: (report: WeeklyReport) => void;
   onSubmit: (report: WeeklyReport) => void;
 }
 
 export const ReportListCard: React.FC<ReportListCardProps> = ({
   report,
   onView,
+  onEdit,
   onSubmit,
 }) => {
   const isDraft = report.status === REPORT_STATUSES.DRAFT;
@@ -33,7 +35,9 @@ export const ReportListCard: React.FC<ReportListCardProps> = ({
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-slate-900 text-sm">
-              Week {report.weekNumber}, {report.year}
+              {report.weekNumber && report.year
+                ? `Week ${report.weekNumber}, ${report.year}`
+                : `Weekly Report (${formatDate(report.weekStart)})`}
             </p>
             <p className="text-xs text-slate-400">
               {formatDate(report.weekStart)} – {formatDate(report.weekEnd)}
@@ -54,7 +58,10 @@ export const ReportListCard: React.FC<ReportListCardProps> = ({
       {needsCorrection && report.lastCorrectionNote && (
         <div className="flex gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg mb-3">
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-700 leading-relaxed">{report.lastCorrectionNote}</p>
+          <div>
+            <p className="text-xs font-semibold text-amber-800">Correction Requested by Manager:</p>
+            <p className="text-xs text-amber-700 leading-relaxed mt-0.5">{report.lastCorrectionNote}</p>
+          </div>
         </div>
       )}
 
@@ -83,6 +90,17 @@ export const ReportListCard: React.FC<ReportListCardProps> = ({
         >
           View
         </Button>
+
+        {canSubmit && onEdit && (
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<Pencil className="w-3.5 h-3.5" />}
+            onClick={() => onEdit(report)}
+          >
+            {needsCorrection ? 'Edit & Fix' : 'Edit Draft'}
+          </Button>
+        )}
 
         {canSubmit && (
           <Button

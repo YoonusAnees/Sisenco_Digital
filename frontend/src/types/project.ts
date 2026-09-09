@@ -9,6 +9,7 @@ export interface Project {
   description?: string;
   category: ProjectCategory;
   status: ProjectStatus;
+  manager?: Partial<User> | null;
   managerId?: string | User | null;
   startDate?: string;
   endDate?: string;
@@ -19,10 +20,11 @@ export interface Project {
 export interface ProjectMember {
   _id: string;
   id: string;
-  projectId: string;
-  userId: User;
+  project: string;
+  user: User;
   projectRole: ProjectMemberRole;
-  joinedAt: string;
+  assignedBy?: Partial<User>;
+  assignedAt: string;
   createdAt: string;
   updatedAt: string;
 }

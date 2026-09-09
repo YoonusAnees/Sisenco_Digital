@@ -231,7 +231,7 @@ export const ProjectsPage: React.FC = () => {
               <PaginationControls
                 page={data.pagination.page}
                 totalPages={data.pagination.totalPages}
-                total={data.pagination.total}
+                total={data.pagination.total ?? (data.pagination as any).totalProjects ?? 0}
                 limit={data.pagination.limit}
                 onPageChange={(page) => setQueryParams((p) => ({ ...p, page }))}
                 onLimitChange={(limit) => setQueryParams((p) => ({ ...p, limit, page: 1 }))}

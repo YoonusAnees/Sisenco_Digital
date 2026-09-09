@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { BottomNav } from './BottomNav';
 import { Toaster } from 'sonner';
 
 export const AppLayout: React.FC = () => {
@@ -19,10 +20,10 @@ export const AppLayout: React.FC = () => {
   }, [isMobileOpen]);
 
   return (
-    <div className="min-h-screen bg-[#F8F6F2] flex">
+    <div className="min-h-screen bg-[#F8F6F2] flex flex-col lg:flex-row">
       <Toaster position="top-right" richColors closeButton />
 
-      {/* Sidebar Navigation */}
+      {/* Desktop & Mobile Drawer Sidebar */}
       <Sidebar
         isMobileOpen={isMobileOpen}
         onMobileClose={() => setIsMobileOpen(false)}
@@ -34,10 +35,14 @@ export const AppLayout: React.FC = () => {
           onMobileMenuToggle={() => setIsMobileOpen((prev) => !prev)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        {/* Content with pb-24 on mobile so bottom nav never overlaps cards or buttons */}
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 pb-24 sm:pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile App Bottom Navigation */}
+      <BottomNav onOpenMobileMenu={() => setIsMobileOpen(true)} />
     </div>
   );
 };

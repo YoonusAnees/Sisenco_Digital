@@ -1,10 +1,8 @@
-import React from 'react';
+﻿import React from 'react';
 import { Project } from '@/types/project';
 import { Badge } from '@/components/common/Badge';
 import { Button } from '@/components/common/Button';
-import {
-  PROJECT_STATUSES,
-} from '@/constants/projects';
+import { PROJECT_STATUSES } from '@/constants/projects';
 import { USER_ROLES } from '@/constants/roles';
 import { useAuth } from '@/contexts/AuthContext';
 import { Pencil, Users, ToggleLeft, ToggleRight, FolderOpen } from 'lucide-react';
@@ -35,6 +33,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const { user } = useAuth();
   const isAdmin = user?.role === USER_ROLES.ADMIN;
   const isActive = project.status === PROJECT_STATUSES.ACTIVE;
+
+  const isAssignedManager = Boolean(
+    user &&
+      ((typeof project.manager === 'object' &&
+        project.manager !== null &&
+        ((project.manager as any)._id === user.id ||
+          (project.manager as any).id === user.id)) ||
+        (typeof project.manager === 'string' && project.manager === user.id) ||
+        project.managerId === user.id)
+  );
+
+  const canManageMembers = isAdmin || (user?.role === USER_ROLES.MANAGER && isAssignedManager);
+  const managerObj = typeof project.manager === 'object' && project.manager !== null ? project.manager : null;
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col gap-4">
@@ -71,6 +82,22 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         >
           {project.category}
         </span>
+
+        {managerObj?.name && (
+          <span className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-100">
+            <span className="w-4 h-4 rounded-full bg-[#62242F] text-white text-[8px] font-bold flex items-center justify-center shrink-0">
+              {managerObj.name.charAt(0).toUpperCase()}
+            </span>
+            <span className="font-medium text-slate-700">{managerObj.name}</span>
+            <span className="text-slate-400 text-[10px]">· In-Charge</span>
+            {isAssignedManager && (
+              <span className="ml-0.5 inline-flex items-center text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
+                You
+              </span>
+            )}
+          </span>
+        )}
+
         {project.startDate && (
           <span className="text-xs text-slate-400">
             Started {formatDate(project.startDate)}
@@ -92,7 +119,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           onClick={() => onViewMembers(project)}
           className="text-slate-600"
         >
-          Members
+          {canManageMembers ? 'Manage Members' : 'Members'}
         </Button>
 
         {isAdmin && (

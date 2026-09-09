@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { reportApi, GetMyReportsQueryParams } from '@/api/reportApi';
 import { projectApi } from '@/api/projectApi';
@@ -34,19 +34,19 @@ export const MyReportsPage: React.FC = () => {
   const [viewingReport, setViewingReport] = useState<WeeklyReport | null>(null);
   const [submittingReport, setSubmittingReport] = useState<WeeklyReport | null>(null);
 
-  /* ── Data ── */
+  /* Data */
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['myReports', queryParams],
     queryFn: () => reportApi.getMyReports(queryParams),
   });
 
   const { data: projectsData } = useQuery({
-    queryKey: ['projects', { limit: 200 }],
-    queryFn: () => projectApi.getProjects({ limit: 200 }),
+    queryKey: ['projects', { limit: 100, status: 'active' }],
+    queryFn: () => projectApi.getProjects({ limit: 100, status: 'active' }),
   });
   const projects = projectsData?.projects ?? [];
 
-  /* ── Mutations ── */
+  /* Mutations */
   const createMutation = useMutation({
     mutationFn: (payload: CreateReportPayload) => reportApi.createReport(payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['myReports'] }),
@@ -68,7 +68,7 @@ export const MyReportsPage: React.FC = () => {
     onError: (err) => toast.error(extractErrorMessage(err, 'Failed to submit report')),
   });
 
-  /* ── Handlers ── */
+  /* Handlers */
   const handleSaveReport = async (payload: CreateReportPayload) => {
     if (editingReport) {
       const id = editingReport._id || editingReport.id;
@@ -155,7 +155,10 @@ export const MyReportsPage: React.FC = () => {
                 <Button
                   variant="primary"
                   leftIcon={<FilePlus className="w-4 h-4" />}
-                  onClick={() => setIsEditorOpen(true)}
+                  onClick={() => {
+                    setEditingReport(null);
+                    setIsEditorOpen(true);
+                  }}
                 >
                   Create Report
                 </Button>
@@ -169,6 +172,10 @@ export const MyReportsPage: React.FC = () => {
                     key={report._id || report.id}
                     report={report}
                     onView={(r) => setViewingReport(r)}
+                    onEdit={(r) => {
+                      setEditingReport(r);
+                      setIsEditorOpen(true);
+                    }}
                     onSubmit={(r) => setSubmittingReport(r)}
                   />
                 ))}
@@ -203,6 +210,11 @@ export const MyReportsPage: React.FC = () => {
         report={viewingReport}
         isOpen={!!viewingReport}
         onClose={() => setViewingReport(null)}
+        onEdit={(r) => {
+          setViewingReport(null);
+          setEditingReport(r);
+          setIsEditorOpen(true);
+        }}
       />
 
       <ConfirmationDialog
@@ -213,7 +225,7 @@ export const MyReportsPage: React.FC = () => {
           if (id) submitMutation.mutate(id);
         }}
         title="Submit Report"
-        message={`Submit week ${submittingReport?.weekNumber} report for manager review? You can resubmit after corrections.`}
+        message={`Submit week ${submittingReport?.weekNumber || ''} report for manager review? You can resubmit if corrections are requested.`}
         confirmText="Submit"
         variant="primary"
         isLoading={submitMutation.isPending}

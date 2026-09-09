@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { Modal } from '@/components/common/Modal';
 import { Input } from '@/components/common/Input';
 import { Select } from '@/components/common/Select';
 import { Button } from '@/components/common/Button';
 import { Project, CreateProjectPayload } from '@/types/project';
-import {
-  PROJECT_CATEGORIES,
-} from '@/constants/projects';
+import { PROJECT_CATEGORIES } from '@/constants/projects';
+import { USER_ROLES } from '@/constants/roles';
+import { userApi } from '@/api/userApi';
 import { extractErrorMessage } from '@/utils/error';
 import { toast } from 'sonner';
 
@@ -30,7 +31,7 @@ const projectSchema = z.object({
     PROJECT_CATEGORIES.RESEARCH,
     PROJECT_CATEGORIES.OTHER,
   ]),
-  managerId: z.string().optional().nullable(),
+  managerId: z.string().min(1, 'Please select an in-charge project manager'),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
 });
@@ -61,6 +62,27 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
 }) => {
   const isEditMode = !!project;
 
+  const { data: managersData, isLoading: isLoadingManagers } = useQuery({
+    queryKey: ['users', { role: USER_ROLES.MANAGER, isActive: true, limit: 100 }],
+    queryFn: () => userApi.getUsers({ role: USER_ROLES.MANAGER, isActive: true, limit: 100 }),
+    enabled: isOpen,
+  });
+
+  const managerOptions = [
+    {
+      value: '',
+      label: isLoadingManagers
+        ? 'Loading managers...'
+        : (managersData?.users?.length ?? 0) === 0
+        ? 'No active managers found'
+        : 'Select in-charge project manager...',
+    },
+    ...(managersData?.users || []).map((m) => ({
+      value: m._id || m.id,
+      label: `${m.name} (${m.email})`,
+    })),
+  ];
+
   const {
     register,
     handleSubmit,
@@ -73,7 +95,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
       code: '',
       description: '',
       category: PROJECT_CATEGORIES.DEVELOPMENT,
-      managerId: null,
+      managerId: '',
       startDate: null,
       endDate: null,
     },
@@ -81,12 +103,21 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
 
   useEffect(() => {
     if (isOpen && project) {
+      let resolvedManagerId = '';
+      if (typeof project.manager === 'object' && project.manager !== null) {
+        resolvedManagerId = (project.manager as any)._id || (project.manager as any).id || '';
+      } else if (typeof project.managerId === 'string') {
+        resolvedManagerId = project.managerId;
+      } else if (typeof project.manager === 'string') {
+        resolvedManagerId = project.manager;
+      }
+
       reset({
         name: project.name,
         code: project.code,
         description: project.description || '',
         category: project.category,
-        managerId: typeof project.managerId === 'string' ? project.managerId : null,
+        managerId: resolvedManagerId,
         startDate: project.startDate ? project.startDate.substring(0, 10) : null,
         endDate: project.endDate ? project.endDate.substring(0, 10) : null,
       });
@@ -96,7 +127,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
         code: '',
         description: '',
         category: PROJECT_CATEGORIES.DEVELOPMENT,
-        managerId: null,
+        managerId: '',
         startDate: null,
         endDate: null,
       });
@@ -108,7 +139,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
       const payload: CreateProjectPayload = {
         ...data,
         code: data.code.toUpperCase(),
-        managerId: data.managerId || null,
+        managerId: data.managerId,
         startDate: data.startDate || null,
         endDate: data.endDate || null,
       };
@@ -152,12 +183,23 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
           {...register('description')}
         />
 
-        <Select
-          label="Category"
-          options={categoryOptions}
-          error={errors.category?.message}
-          {...register('category')}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Category"
+            options={categoryOptions}
+            error={errors.category?.message}
+            {...register('category')}
+          />
+
+          <Select
+            label="In-Charge Manager"
+            required
+            options={managerOptions}
+            error={errors.managerId?.message}
+            helperText="Responsible for managing members & reviewing reports"
+            {...register('managerId')}
+          />
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input

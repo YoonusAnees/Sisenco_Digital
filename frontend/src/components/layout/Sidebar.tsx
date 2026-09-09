@@ -1,8 +1,8 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { USER_ROLES } from '@/constants/roles';
-import { cn } from '@/utils/cn';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { USER_ROLES } from "@/constants/roles";
+import { cn } from "@/utils/cn";
 import {
   LayoutDashboard,
   FileCheck,
@@ -13,7 +13,7 @@ import {
   Settings,
   FileText,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface SidebarProps {
   isMobileOpen?: boolean;
@@ -29,44 +29,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems = [
     {
-      label: 'Dashboard',
-      path: '/',
+      label: "Dashboard",
+      path: "/",
       icon: LayoutDashboard,
       roles: [USER_ROLES.MEMBER, USER_ROLES.MANAGER, USER_ROLES.ADMIN],
     },
     {
-      label: 'Weekly Reports',
-      path: '/reports',
+      label: "Weekly Reports",
+      path: "/reports",
       icon: FileCheck,
-      roles: [USER_ROLES.MEMBER, USER_ROLES.MANAGER, USER_ROLES.ADMIN],
+      roles: [USER_ROLES.MEMBER],
     },
     {
-      label: 'Review Queue',
-      path: '/reviews',
+      label: "Review Queue",
+      path: "/reviews",
       icon: ClipboardList,
       roles: [USER_ROLES.MANAGER, USER_ROLES.ADMIN],
     },
     {
-      label: 'Projects',
-      path: '/projects',
+      label: "Projects",
+      path: "/projects",
       icon: FolderKanban,
       roles: [USER_ROLES.MEMBER, USER_ROLES.MANAGER, USER_ROLES.ADMIN],
     },
     {
-      label: 'Users',
-      path: '/users',
+      label: "Users",
+      path: "/users",
       icon: Users,
       roles: [USER_ROLES.MANAGER, USER_ROLES.ADMIN],
     },
     {
-      label: 'Notifications',
-      path: '/notifications',
+      label: "Notifications",
+      path: "/notifications",
       icon: Bell,
       roles: [USER_ROLES.MEMBER, USER_ROLES.MANAGER, USER_ROLES.ADMIN],
     },
     {
-      label: 'Settings',
-      path: '/settings',
+      label: "Settings",
+      path: "/settings",
       icon: Settings,
       roles: [USER_ROLES.MEMBER, USER_ROLES.MANAGER, USER_ROLES.ADMIN],
     },
@@ -83,8 +83,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-tight">Sisenco</h2>
-            <p className="text-[10px] text-[#B7872A] uppercase tracking-wider font-semibold">Weekly Report</p>
+            <h2 className="text-sm font-bold text-white tracking-tight">
+              Sisenco
+            </h2>
+            <p className="text-[10px] text-[#B7872A] uppercase tracking-wider font-semibold">
+              Weekly Report
+            </p>
           </div>
         </div>
         {onMobileClose && (
@@ -107,13 +111,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               key={item.path}
               to={item.path}
               onClick={onMobileClose}
-              end={item.path === '/'}
+              end={item.path === "/"}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all group',
+                  "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all group",
                   isActive
-                    ? 'bg-[#62242F] text-white shadow-sm border-l-4 border-[#B7872A]'
-                    : 'text-slate-300 hover:bg-[#3D2327] hover:text-white'
+                    ? "bg-[#62242F] text-white shadow-sm border-l-4 border-[#B7872A]"
+                    : "text-slate-300 hover:bg-[#3D2327] hover:text-white",
                 )
               }
             >
@@ -121,8 +125,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <>
                   <Icon
                     className={cn(
-                      'w-4 h-4 transition-colors',
-                      isActive ? 'text-[#B7872A]' : 'text-slate-400 group-hover:text-slate-200'
+                      "w-4 h-4 transition-colors",
+                      isActive
+                        ? "text-[#B7872A]"
+                        : "text-slate-400 group-hover:text-slate-200",
                     )}
                   />
                   <span>{item.label}</span>
@@ -136,8 +142,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Footer */}
       <div className="p-4 border-t border-[#3D2327]">
         <div className="px-3 py-2 rounded-lg bg-[#351E22] border border-[#48282D]">
-          <p className="text-[11px] font-medium text-slate-400">Sisenco Digital v1.0</p>
-          <p className="text-[10px] text-slate-500">Internal Reporting System</p>
+          <p className="text-[11px] font-medium text-slate-400">
+            Sisenco Digital v1.0
+          </p>
+          <p className="text-[10px] text-slate-500">
+            Internal Reporting System
+          </p>
         </div>
       </div>
     </div>
