@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { Toaster } from 'sonner';
+import { AiAssistantButton } from '@/features/ai/components/AiAssistantButton';
+import { AiAssistantPanel } from '@/features/ai/components/AiAssistantPanel';
 
 export const AppLayout: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isAiOpen, setIsAiOpen] = useState(false);
 
   useEffect(() => {
     if (isMobileOpen) {
@@ -43,6 +46,17 @@ export const AppLayout: React.FC = () => {
 
       {/* Mobile App Bottom Navigation */}
       <BottomNav onOpenMobileMenu={() => setIsMobileOpen(true)} />
+
+      {/* ── AI Assistant ───────────────────────────────────────── */}
+      <AiAssistantButton
+        onClick={() => setIsAiOpen((prev) => !prev)}
+        hasActivity={false}
+      />
+
+      <AiAssistantPanel
+        isOpen={isAiOpen}
+        onClose={() => setIsAiOpen(false)}
+      />
     </div>
   );
 };
