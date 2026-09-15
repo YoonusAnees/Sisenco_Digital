@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FileText,
@@ -26,6 +26,9 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
+import { AiAssistantPanel } from '@/features/ai/components/AiAssistantPanel';
+import { useAiChat } from '@/features/ai/hooks/useAiAssistant';
+import { Sparkles, AlertOctagon } from 'lucide-react';
 import { USER_ROLES } from '@/constants/roles';
 import { dashboardApi } from '@/api/dashboardApi';
 import {
@@ -57,6 +60,10 @@ export const DashboardPage: React.FC = () => {
   const [workloads, setWorkloads] = useState<ProjectWorkloadItem[]>([]);
   const [timeDist, setTimeDist] = useState<TimeDistributionCategory[]>([]);
   const [activities, setActivities] = useState<ActivityFeedItem[]>([]);
+
+  // AI panel state
+  const [isAiOpen, setIsAiOpen] = useState(false);
+  const { sendMessage, isLoading: isAiLoading } = useAiChat();
 
   const loadDashboardData = useCallback(async () => {
     setIsLoading(true);
@@ -213,6 +220,49 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Manager AI Quick Actions */}
+      {isManagerOrAdmin && (
+        <div className="flex flex-wrap items-center gap-3 p-4 bg-gradient-to-r from-[#62242F]/5 to-[#B7872A]/5 border border-[#B7872A]/20 rounded-xl">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#62242F]">
+            <Sparkles className="w-4 h-4 text-[#B7872A]" />
+            AI Manager Tools
+          </div>
+          <div className="flex-1" />
+          <button
+            id="ai-summarize-reports"
+            type="button"
+            disabled={isAiLoading}
+            onClick={async () => {
+              setIsAiOpen(true);
+              await sendMessage(
+                'Summarize weekly progress, completed milestones, and hours breakdown for my projects this week.',
+                'summarize_reports'
+              );
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#62242F] rounded-lg hover:bg-[#48282D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Summarize Week
+          </button>
+          <button
+            id="ai-summarize-blockers"
+            type="button"
+            disabled={isAiLoading}
+            onClick={async () => {
+              setIsAiOpen(true);
+              await sendMessage(
+                'What are the current open blockers and impediments requiring management attention this week?',
+                'summarize_blockers'
+              );
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#62242F] bg-white border border-[#B7872A]/30 rounded-lg hover:bg-[#62242F] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <AlertOctagon className="w-3.5 h-3.5" />
+            Show Blockers
+          </button>
+        </div>
+      )}
 
       {/* Analytics Section: Trends & Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -476,8 +526,13 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* AI Assistant Panel */}
+      <AiAssistantPanel isOpen={isAiOpen} onClose={() => setIsAiOpen(false)} />
     </div>
   );
 };
 
 export default DashboardPage;
+
+
